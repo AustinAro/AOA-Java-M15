@@ -439,3 +439,268 @@ The program successfully implemented and the expected output is verified.
 
 
 
+# EX 5D Flower Planting.
+## DATE: 06/11/2025
+## AIM:
+To write a Java program to for given constraints.
+You are given n gardens, labelled from 1 to n.
+
+You also have a list called paths, where each element paths[i] = [xi, yi] represents a bidirectional road connectingthe  garden xi and garden yi.
+
+You want to plant one flower in each garden, and there are exactly 4 types of flowers labelled as 1, 2, 3, and 4.
+
+Your goal is to plant flowers such that:
+
+No two connected gardens (i.e., connected via a path) have the same flower type.
+
+Return any valid flower assignment as an array where:
+
+answer[i] is the flower type planted in the (i+1) ᵗʰ garden
+
+It is guaranteed that:
+
+No garden is connected to more than 3 other gardens
+
+A valid flower assignment always exists
+
+<img width="177" height="292" alt="image" src="https://github.com/user-attachments/assets/36aa40cb-1cdd-4746-b1a6-fc51ce6e96aa" />
+
+## Algorithm
+
+1. **Input:**
+
+   * Read the number of gardens `n` and the number of paths `m`.
+   * Read each path pair `(u, v)` that connects two gardens.
+
+2. **Graph Construction:**
+
+   * Create an adjacency list for all gardens.
+   * For every path `(u, v)`, add each garden to the other's adjacency list.
+
+3. **Initialization:**
+
+   * Create an integer array `flowers[n]` to store the flower type (1–4) assigned to each garden.
+   * Each garden can have one of four flower types.
+
+4. **Assignment Logic:**
+
+   * For each garden `i`, check all adjacent gardens.
+   * Mark the flower types already used by its neighbors and assign the first available flower type to garden `i`.
+
+5. **Output:**
+
+   * Print the final flower type assigned to each garden in order.
+  
+
+## Program:
+```
+/*
+Program to implement Reverse a String
+Developed by: Austin Aro A
+Register Number:  212224040038
+*/
+import java.util.*;
+
+public class GardenFlowerPlanner {
+
+    public static int[] assignFlowers(int n, int[][] paths) {
+        @SuppressWarnings("unchecked")
+        List<Integer>[] adj = new ArrayList[n];
+        for (int i = 0; i < n; i++) adj[i] = new ArrayList<>();
+
+        for (int[] path : paths) {
+            adj[path[0] - 1].add(path[1] - 1);
+            adj[path[1] - 1].add(path[0] - 1);
+        }
+
+        int[] flowers = new int[n];
+        for (int i = 0; i < n; i++) {
+            boolean[] used = new boolean[5];
+            for (int nei : adj[i]) {
+                used[flowers[nei]] = true;
+            }
+            for (int f = 1; f <= 4; f++) {
+                if (!used[f]) {
+                    flowers[i] = f;
+                    break;
+                }
+            }
+        }
+        return flowers;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int n = sc.nextInt(); 
+        int m = sc.nextInt(); 
+
+        int[][] paths = new int[m][2];
+        for (int i = 0; i < m; i++) {
+            paths[i][0] = sc.nextInt();
+            paths[i][1] = sc.nextInt();
+        }
+        int[] result = assignFlowers(n, paths);
+
+        for (int flower : result) {
+            System.out.print(flower + " ");
+        }
+        System.out.println();
+    }
+}
+
+```
+
+## Output:
+<img width="454" height="426" alt="image" src="https://github.com/user-attachments/assets/22e872d3-bb54-4586-8c01-ffe010576fe5" />
+
+
+
+## Result:
+The program successfully implemented and the expected output is verified.
+
+
+
+
+# EX 5E Minimum Spanning Tree -Boruvka's Algorithm
+## DATE: 10/11/2025
+## AIM:
+To write a Java program to for given constraints.
+Boruvka's Algorithm - Minimum Spanning Tree
+
+Find the MST using Boruvka's Algorithm for a weighted undirected graph.
+
+<img width="292" height="235" alt="image" src="https://github.com/user-attachments/assets/06246b27-37a9-40a8-bd7a-37a1d5187cd1" />
+
+## Algorithm
+
+1. **Input:**
+
+   * Read number of vertices `V` and edges `E`.
+   * For each edge, read its source `src`, destination `dest`, and weight `w`.
+   * Store all edges in a list.
+
+2. **Initialization:**
+
+   * Set up a `parent[]` array for Disjoint Set Union (DSU).
+   * Initially, each vertex is its own parent.
+   * Initialize `numTrees = V` (number of connected components) and `MSTweight = 0`.
+
+3. **Finding Cheapest Edges:**
+
+   * For every iteration (while more than one tree exists):
+
+     * Initialize an array `cheapest[]` to store the minimum-cost edge for each component.
+     * For each edge, find the sets of its two vertices.
+     * Update `cheapest` for both sets if the current edge has a smaller weight.
+
+4. **Building the MST:**
+
+   * For each vertex, pick its `cheapest` edge (if any).
+   * If the two endpoints belong to different sets, include the edge in the MST, print it, and merge the sets using `union()`.
+   * Decrease `numTrees` after each successful merge.
+
+5. **Output:**
+
+   * Continue until only one tree (MST) remains.
+   * Print each chosen edge and finally display the **Total Weight of MST**.
+   
+
+## Program:
+```
+/*
+Program to implement Reverse a String
+Developed by: Austin Aro A
+Register Number:  212224040038
+*/
+import java.util.*;
+
+public class BoruvkaMST {
+    static int[] parent;
+
+    static int find(int i) {
+        if (parent[i] != i)
+            parent[i] = find(parent[i]);
+        return parent[i];
+    }
+
+    static void union(int x, int y) {
+        parent[find(x)] = find(y);
+    }
+
+    static int boruvkaMST(int V, List<Edge> edges) {
+        parent = new int[V];
+        int[] cheapest = new int[V];
+        int numTrees = V;
+        int MSTweight = 0;
+
+        for (int v = 0; v < V; v++)
+            parent[v] = v;
+
+        while (numTrees > 1) {
+            Arrays.fill(cheapest, -1);
+
+            for (int i = 0; i < edges.size(); i++) {
+                int set1 = find(edges.get(i).src);
+                int set2 = find(edges.get(i).dest);
+                if (set1 == set2) continue;
+
+                if (cheapest[set1] == -1 || edges.get(i).weight < edges.get(cheapest[set1]).weight)
+                    cheapest[set1] = i;
+
+                if (cheapest[set2] == -1 || edges.get(i).weight < edges.get(cheapest[set2]).weight)
+                    cheapest[set2] = i;
+            }
+
+            for (int i = 0; i < V; i++) {
+                if (cheapest[i] != -1) {
+                    Edge e = edges.get(cheapest[i]);
+                    int set1 = find(e.src);
+                    int set2 = find(e.dest);
+
+                    if (set1 == set2) continue;
+
+                    MSTweight += e.weight;
+                    System.out.println("Edge: " + e.src + "-" + e.dest + " Weight: " + e.weight);
+                    union(set1, set2);
+                    numTrees--;
+                }
+            }
+        }
+        return MSTweight;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int V = sc.nextInt();
+        int E = sc.nextInt();
+
+        List<Edge> edges = new ArrayList<>();
+        for (int i = 0; i < E; i++) {
+            edges.add(new Edge(sc.nextInt(), sc.nextInt(), sc.nextInt()));
+        }
+
+        int totalWeight = boruvkaMST(V, edges);
+        System.out.println("Total Weight of MST: " + totalWeight);
+
+        sc.close();
+    }
+}
+
+class Edge {
+    int src, dest, weight;
+    Edge(int s, int d, int w) {
+        src = s; dest = d; weight = w;
+    }
+}
+
+```
+
+## Output:
+<img width="736" height="485" alt="image" src="https://github.com/user-attachments/assets/7e88ce2d-fabe-455f-8fc9-8ec6622ab5e3" />
+
+
+
+## Result:
+The program successfully implemented and the expected output is verified.
